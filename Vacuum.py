@@ -55,4 +55,4 @@ for S in Environs.MiniMax2Package():
 '''
 
 agents = [Agency.EmptyRoomInternalStateReflexAgent(np.array([0,0]), np.array([0,0]), 'E')]
-print run_eval_environment(Environs.LimitedRandom().grid, f_action, agents, f_homeless)
+print run_eval_environment(Environs.LimitedRandom().grid, f_action, agents, f_scoring)

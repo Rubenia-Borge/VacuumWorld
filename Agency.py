@@ -94,19 +94,31 @@ class EmptyRoomInternalStateReflexAgent(Agent):
         self.internal_state[self.loc[0], self.loc[1]] = 0
         if self.dirty:
             self.action = 'suck'
-        elif self.home and not self.internal_state.any():
-            self.action = 'powerdown'
-        elif not self.internal_state.any() and not self.bump:
-            self.action = 'move'
-        elif self.bump:
-            self.action = 'rturn'
-            if self.bearing[1] == 1 and self.loc[1] < 15:
-                self.internal_state = self.internal_state[:,:self.loc[1]+1]
-            elif self.bearing[0] == 1 and self.loc[0] < 15:
-                self.internal_state = self.internal_state[:self.loc[0]+1,:]
-        elif self.internal_state[self.loc[0]+self.bearing[0],
-                self.loc[1]+self.bearing[1]] == 0:
-            self.action = 'rturn'
+        elif self.internal_state.any():
+            if self.bump:
+                self.action = 'rturn'
+                if self.bearing[1] == 1 and self.loc[1] < 15:
+                    self.internal_state = self.internal_state[:,:self.loc[1]+1]
+                elif self.bearing[0] == 1 and self.loc[0] < 15:
+                    self.internal_state = self.internal_state[:self.loc[0]+1,:]
+            elif self.internal_state[self.loc[0]+self.bearing[0],
+                    self.loc[1]+self.bearing[1]] == 0:
+                self.action = 'rturn'
+            else:
+                self.action = 'move'
         else:
-            self.action = 'move'
+            if self.home:
+                self.action = 'powerdown'
+            elif self.bump:
+                if self.bearing[0] == -1:
+                    self.action = 'lturn'
+                else:
+                    self.action = 'rturn'
+            elif min(self.bearing) == -1 :
+                self.action = 'move'
+            else:
+                if self.bearing[0] == 1:
+                    self.action = 'rturn'
+                else:
+                    self.action = 'lturn'
         print self.action
