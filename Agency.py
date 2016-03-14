@@ -28,7 +28,6 @@ class Agent():
         self.bump = False
         self.dirty = False
         self.home = False
-        print self.loc + self.bearing
         if (min(self.loc + self.bearing) < 0
                 or min(state.shape - self.loc - self.bearing) == 0
                 or state[self.loc[0] + self.bearing[0],
@@ -85,27 +84,29 @@ class BasicReflexAgent(Agent):
         print self.action
 
 
-class InternalStateReflexAgent(Agent):
+class EmptyRoomInternalStateReflexAgent(Agent):
     ''' An Agent class that responds to its immediate environment'''
+    def __init__(self, start_loc, home_loc, start_face):
+        Agent.__init__(self, start_loc, home_loc, start_face)
+        self.internal_state = np.ones((15,15))
+
     def program(self):
-        if self.dirty==True:
+        self.internal_state[self.loc[0], self.loc[1]] = 0
+        if self.dirty:
             self.action = 'suck'
-        elif self.bump==True:
-            do = 100*np.random.random()
-            if do < 49:
-                self.action = 'rturn'
-            elif do < 98:
-                self.action = 'lturn'
-            else:
-                self.action = 'powerdown'
+        elif self.home and not self.internal_state.any():
+            self.action = 'powerdown'
+        elif not self.internal_state.any() and not self.bump:
+            self.action = 'move'
+        elif self.bump:
+            self.action = 'rturn'
+            if self.bearing[1] == 1 and self.loc[1] < 15:
+                self.internal_state = self.internal_state[:,:self.loc[1]+1]
+            elif self.bearing[0] == 1 and self.loc[0] < 15:
+                self.internal_state = self.internal_state[:self.loc[0]+1,:]
+        elif self.internal_state[self.loc[0]+self.bearing[0],
+                self.loc[1]+self.bearing[1]] == 0:
+            self.action = 'rturn'
         else:
-            do = 100*np.random.random()
-            if do < 50:
-                self.action = 'move'
-            elif do < 74:
-                self.action = 'rturn'
-            elif do < 98:
-                self.action = 'rturn'
-            else:
-                self.action = 'powerdown'
+            self.action = 'move'
         print self.action
